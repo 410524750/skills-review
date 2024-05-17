@@ -1,0 +1,217 @@
+#include <vector>
+#include <string>
+#include <iostream>
+#include <string>
+#include <map>
+#include <set>
+#include <cassert> // 包含assert宏
+using namespace std;
+
+class Space
+{
+public:
+    Space(int L, int W, int H, int C, int ID);
+    ~Space(){};
+    int Usize;
+    int full = 0;
+    int UL;
+    int UW;
+    int UH;
+    int UC;
+    int Used = 0;
+    int UID;
+    int Addclothes(int L, int W, int H);
+};
+Space::Space(int L, int W, int H, int C, int ID)
+{
+    UL = L;
+    UW = W;
+    UH = H;
+    UC = C;
+    UID = ID;
+}
+int Space::Addclothes(int L, int W, int H)
+{
+    int ret = 0;
+    if (UC == 1)
+    {
+        if (W > UW)
+        {
+            cout << "Size Failed to add" << endl;
+            return ret;
+        }
+        if (H > UH)
+        {
+            cout << "Size Failed to add" << endl;
+            return ret;
+        }
+        Used += L;
+        if (Used > UL)
+        {
+            cout << "FULL,Failed to add" << endl;
+            return ret;
+        }
+    }
+
+    if (UC == 2)
+    {
+        if (W > UW)
+        {
+            cout << "Size Failed to add" << endl;
+            return ret;
+        }
+        if (L > UL)
+        {
+            cout << "Size Failed to add" << endl;
+            return ret;
+        }
+        Used += H;
+        if (Used > UH)
+        {
+            cout << "FULL,Failed to add" << endl;
+            return ret;
+        }
+    }
+    ret = 1;
+    return ret;
+}
+class Wardrobe
+{
+public:
+    int UL;
+    int UW;
+    int UH;
+    // int USEDL = 0;
+    // int USEDW = 0;
+    // int USEDH = 0;
+    ~Wardrobe(){};
+    Wardrobe(int L, int W, int H, int i);
+    int Ui;
+    map<int, Space *> Sgua;
+    map<int, Space *> Sdui;
+    map<int, int> num;
+    int guafangnum = 0;
+    int duifangnum = 0;
+    void guafang(int X, int L, int H);
+    void duifang(int X, int L, int H);
+    int Addclothes(int L, int W, int H, int C);
+    void creat();
+    // int diefang(int L, int W, int H);
+};
+Wardrobe::Wardrobe(int L, int W, int H, int i)
+{
+    UL = L * i;
+    UW = W * i;
+    UH = H * i;
+    Ui = i;
+    for (int k = 0; k < L * H; k++)
+    {
+        num[k] = 0;
+    }
+}
+void Wardrobe::creat()
+{
+    for (pair<int, int> n : num)
+    {
+        if (n.second > 1)
+        {
+            cout << " creat error ";
+            break;
+        }
+    }
+}
+void Wardrobe::guafang(int X, int L, int H)
+{
+
+    // if (USEDL > L)
+    // {
+    //     cout << "FULL,SPACE Failed to add" << endl;
+    // }
+    // if (USEDW > W)
+    // {
+    //     cout << "FULL,SPACE Failed to add" << endl;
+    // }
+    // if (USEDH > H)
+    // {
+    //     cout << "FULL,SPACE Failed to add" << endl;
+    // }
+    for (int i = 0; i < H; i++)
+
+    {
+        X = X + UL * i;
+        for (int J = X; J < X + L; J++)
+        {
+            num[J] = num[J] + 1;
+        }
+    }
+
+    Space *gua = new Space(L, UW, H, 1, guafangnum);
+    Sgua[guafangnum] = gua;
+    guafangnum++;
+}
+void Wardrobe::duifang(int X, int L, int H)
+{
+    for (int i = 0; i < H; i++)
+
+    {
+        X = X + UL * i;
+        for (int J = X; J < X + L; J++)
+        {
+            num[J] = num[J] + 1;
+        }
+    }
+    Space *dui = new Space(L, UW, H, 2, duifangnum);
+    Sdui[duifangnum] = dui;
+    duifangnum++;
+}
+int Wardrobe::Addclothes(int L, int W, int H, int C)
+{
+    int ret=0;
+    if (C == 1)
+    {
+        for (pair<int, Space *> gua : Sgua)
+        {
+            if (gua.second->Addclothes(L, W, H) == 1)
+            {
+                cout << "ADD SUCCESS" << endl;
+                ret=1;
+                break;
+            }
+        }
+    }
+    if (C == 2)
+    {
+        for (pair<int, Space *> dui : Sdui)
+        {
+            if (dui.second->Addclothes(L, W, H) == 1)
+            {
+                cout << "ADD SUCCESS" << endl;
+                ret=1;
+                break;
+            }
+        }
+    }
+    return ret;
+}
+// int Wardrobe::diefang(int L, int W, int H)
+// {
+//     Space die(L, W, H, 3);
+//     S.emplace(die);
+// }
+void setUp()
+{
+    Wardrobe wardrobe(100, 100, 100, 1);
+    wardrobe.guafang(0, 20, 40);
+    wardrobe.guafang(30, 20, 40);
+    wardrobe.duifang(60, 20, 40);
+    wardrobe.duifang(85, 10, 40);
+    wardrobe.Addclothes(10, 20, 30, 1);
+    wardrobe.Addclothes(10, 20, 30, 2);
+    wardrobe.Addclothes(10, 20, 50, 2);
+}
+void testAddClothes() {
+    Wardrobe wardrobe(100, 100, 100, 1);
+    wardrobe.guafang(30, 20, 40);
+    bool success = wardrobe.Addclothes(10, 20, 30, 1);
+    assert(success); // 如果添加衣物失败，程序将终止并显示错误消息
+}
